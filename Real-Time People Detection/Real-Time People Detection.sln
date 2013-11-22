@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Real-Time People Detection", "Real-Time People Detection.vcxproj", "{3BAAE42D-1E92-4047-AF2A-40A7C7AA303C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3BAAE42D-1E92-4047-AF2A-40A7C7AA303C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3BAAE42D-1E92-4047-AF2A-40A7C7AA303C}.Debug|Win32.Build.0 = Debug|Win32
+		{3BAAE42D-1E92-4047-AF2A-40A7C7AA303C}.Release|Win32.ActiveCfg = Release|Win32
+		{3BAAE42D-1E92-4047-AF2A-40A7C7AA303C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

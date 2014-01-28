@@ -38,7 +38,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cvNamedWindow("Original", CV_WINDOW_AUTOSIZE);
 
 		//loop through all of the images
-		for(int i = 1; i <= 1332; i++) //1332
+		for(int i = 0; i <= 1332; i++) //1332
 		{
 			//generate the current file name
 			location = generateFileName(i);
@@ -98,13 +98,13 @@ float processImage(IplImage* image, Mat &templateMatrix)
 	//Two outer for loops are for moving throughout the entire image
 	//The middle for loops are for checking a section with the template image
 	//The inner for loops are for moving through the template matrix
-	for(int i = 0; i < 320 - templateMatrix.cols; i++)
+	for(int i = 0; i < 240 - templateMatrix.rows; i++) //down
 	{
-		for(int n = 0; n < 240 - templateMatrix.rows; n++)
+		for(int n = 0; n < 320 - templateMatrix.cols; n++) //across
 		{
-			for(int j = i; j < i + 62; j++) //cols
+			for(int j = i; j < i + 62; j++) //down
 			{
-				for(int z = n; z < i + 83; z++) //rows
+				for(int z = n; z < i + 83; z++) //across
 				{
 					int currentImage = imageMatrix.at<unsigned char>(j, z);
 					int templateImage = templateMatrix.at<unsigned char>(j, z);

@@ -12,138 +12,128 @@ using namespace std;
 using namespace cv;
 
 string generateFileName(int);
-float processImage(IplImage*, Mat&);
+float processImage(Mat&, Mat&);
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//declare some variable we will need
-	IplImage *img;
-	const char* place;
-	string location;
+	Mat image;
+	const char* fileNameChar;
+	string fileName, value;
 	float result;
-	string value;
 
-	//cout << "Type start to begin: ";
-	//cin >> value;
-	value = "start";
+	//convert from the IplImage structure to a 2D matrix (no need for IplImage structure as we won't display this on screen)
+	//IplImage* myTemplate = cvLoadImage("testTemplate.png");
+	Mat templateMatrix = imread("testTemplate.png", CV_LOAD_IMAGE_GRAYSCALE);
 
-	if(value == "start")
+	//create a window to show the images in
+	cvNamedWindow("Original", CV_WINDOW_AUTOSIZE);
+
+	//loop through all of the images
+	for(int i = 0; i <= 0; i++) //1332
 	{
-		//convert from the IplImage structure to a 2D matrix (no need for IplImage structure as we won't display this on screen)
-		IplImage* myTemplate = cvLoadImage("template.jpg");
-		cvThreshold(myTemplate, myTemplate, 135, 255, CV_THRESH_BINARY); //was 106
-		Mat templateMatrix(myTemplate);		
+		//generate the current file name
+		//fileName = generateFileName(i);
+		fileName = "testImage.png";
 
-		//create a window to show the images in
-		cvNamedWindow("Original", CV_WINDOW_AUTOSIZE);
-
-		//loop through all of the images
-		for(int i = 0; i <= 1332; i++) //1332
-		{
-			//generate the current file name
-			location = generateFileName(i);
-			//location = "images/thermal000264.jpg";
-
-			cout << "Using filename: " << location << endl;
-
-			//convert from string to const char *
-			place = location.c_str();
+		cout << "Using filename: " << fileName << endl;
 		
-			//load the correct image
-			img = cvLoadImage(place);
+		//load the correct image
+		image = (imread(fileName, CV_LOAD_IMAGE_GRAYSCALE));
 
-			//carry out all of the processes on the current image
-			result = processImage(img, templateMatrix);
+		//carry out all of the processes on the current image
+		result = processImage(image, templateMatrix);
 
-			//show the image in our window
-			cvShowImage("Original", cvLoadImage(place));
+		fileNameChar = fileName.c_str();
 
-			cvNamedWindow("Binary", CV_WINDOW_AUTOSIZE);
-			cvShowImage("Binary", img);
+		//show the image in our window
+		cvShowImage("Original", cvLoadImage(fileNameChar));
 
-			//give a short pause to make sure the image displays
-			cvWaitKey(10);
+		//Show the binary version of the image
+		cvNamedWindow("Binary", CV_WINDOW_AUTOSIZE);
+		imshow("Binary", image);
 
-			//release this image ready for the next one
-			cvReleaseImage(&img); 
-		}
-
-		//clear up our window when all images have been displayed
-		cvDestroyWindow("Original"); 
-		cvDestroyWindow("Binary");
+		//give a short pause to make sure the image displays
+		cvWaitKey(1);
 	}
-	else
-	{
-		cout << "Command unknown" << endl;
-	}
+
+	//clear up our window when all images have been displayed
+	cvDestroyWindow("Original"); 
+	cvDestroyWindow("Binary");
 
 	return 0;
 }
 
-float processImage(IplImage* image, Mat &templateMatrix)
+float processImage(Mat &image, Mat &templateImage)
 {
-	//used for calculating image difference 
+	// Declare the variables required
 	int counter = 0;
-	Mat storage((image->width), (image->height), 1, CV_32F);
-	float max = 0;
-	int location1 = 0, location2 = 0;
-	int templateRowCounter = 0, templateColCounter = 0;
+	double value;
+	Mat storage((image.rows - (templateImage.rows - 1)), (image.cols - (templateImage.cols - 1)), CV_64F);
 
-	//perform a threshold to get a binary image
-	cvThreshold(image, image, 135, 255, CV_THRESH_BINARY); //was 106
+	threshold(image, image, 135, 255, CV_THRESH_BINARY);
 
-	//convert from the IplImage structure to a 2D matrix
-	Mat imageMatrix(image);
+	//cout << endl;
 
-	//Two outer for loops are for moving throughout the entire image
-	//The middle for loops are for checking a section with the template image
-	//The inner for loops are for moving through the template matrix
-	for(int i = 0; i < 240 - templateMatrix.rows; i++) //down
+	for(int imageRow = 0; imageRow < (image.rows - (templateImage.rows - 1)); imageRow++)
 	{
-		for(int n = 0; n < 320 - templateMatrix.cols; n++) //across
+		for(int imageCol = 0; imageCol < (image.cols - (templateImage.cols - 1)); imageCol++)
 		{
-			for(int j = i; j < i + 62; j++) //down
+			for(int templateRow = 0; templateRow < templateImage.rows; templateRow++)
 			{
-				for(int z = n; z < i + 83; z++) //across
+				for(int templateCol = 0; templateCol < templateImage.cols; templateCol++)
 				{
-					int currentImage = imageMatrix.at<unsigned char>(j, z);
-					int templateImage = templateMatrix.at<unsigned char>(j, z);
+					int imageValue = image.at<unsigned char>(templateRow + imageRow, templateCol + imageCol);
+					int templateValue = templateImage.at<unsigned char>(templateRow, templateCol);
 
-					//cout << currentImage << " / " << templateImage << endl;
+					//cout << "Image value = " << imageValue << endl << "Template value = " << templateValue << endl;
 
-					if((currentImage == 0 && templateImage == 1)||(currentImage == 1 && templateImage == 0))
+					if((imageValue == 0 && templateValue == 0)||(imageValue == 255 && templateValue == 255))
 					{
 						counter++;
 					}
 				}
 			}
 
-			float value = (float)counter/(float)(templateMatrix.cols*templateMatrix.rows);
+			value = (double)counter/(double)(templateImage.cols*templateImage.rows);
 
-			//cout << fixed << "Counter: " << counter << " Value: " << value << endl; 
+			storage.at<double>(imageRow, imageCol) = value;
 
-			//store the score for this section within our storage matrix
-			storage.at<float>(i, n) = value;
+			// Output for development purposes
+			//cout << "Storing in location " << imageCol << ", " << imageRow << endl;
+			//cout << "Value for [" << imageCol << ", " << imageRow << "] = " << value << endl << endl;
 
 			counter = 0;
+			value = 0;
 		}
+		// Output for development purposes
+		//cout << endl;
 	}
 
-	//Check for best match within the storage matrix
-	for(int i = 0; i < (image->height); i++)
+	double max = 0;
+
+	// Search for exact matches
+	for(int row = 0; row < storage.rows; row++)
 	{
-		for(int j = 0; j < (image->width); j++)
+		for(int col = 0; col < storage.cols; col++)
 		{
-			if(storage.at<float>(i, j) > max)
+			double data = storage.at<double>(row, col);
+
+			//cout << "[" << row << ", " << col << "]" << " = " << fixed << data << endl;
+
+			if (data > max)
 			{
-				max = storage.at<float>(i, j);
-				location1 = i;
-				location2 = j;
+				max = data;
+			}
+			
+			if(data == 1)
+			{
+				cout << " ** Exact match detected at position [" << row << ", " << col << "] ** " << endl;
 			}
 		}
 	}
 
-	cout << fixed << "Best hit has score " << max << " in location " << location1 << ", " << location2 << endl << endl;
+	cout << "Max value: " << max << endl << endl;
 
 	return 0;
 }

@@ -22,15 +22,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	string fileName, value;
 	float result;
 
-	//convert from the IplImage structure to a 2D matrix (no need for IplImage structure as we won't display this on screen)
-	//IplImage* myTemplate = cvLoadImage("testTemplate.png");
-	Mat templateMatrix = imread("testTemplate.png", CV_LOAD_IMAGE_GRAYSCALE);
+	// Read in the template image and store within a matrix
+	Mat imageTemplate = imread("testTemplate.png", CV_LOAD_IMAGE_GRAYSCALE);
 
 	//create a window to show the images in
 	cvNamedWindow("Original", CV_WINDOW_AUTOSIZE);
 
 	//loop through all of the images
-	for(int i = 0; i <= 0; i++) //1332
+	for(int i = 0; i < 1; i++) //1332
 	{
 		//generate the current file name
 		//fileName = generateFileName(i);
@@ -42,7 +41,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		image = (imread(fileName, CV_LOAD_IMAGE_GRAYSCALE));
 
 		//carry out all of the processes on the current image
-		result = processImage(image, templateMatrix);
+		result = processImage(image, imageTemplate);
 
 		fileNameChar = fileName.c_str();
 
@@ -134,6 +133,12 @@ float processImage(Mat &image, Mat &templateImage)
 	}
 
 	cout << "Max value: " << max << endl << endl;
+
+	// Write the storage to a xml file
+	string filename = "out.xml";
+	FileStorage fs (filename, FileStorage::WRITE);
+	fs << "Storage" << storage;
+	fs.release();
 
 	return 0;
 }
